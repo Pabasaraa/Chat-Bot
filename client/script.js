@@ -41,6 +41,28 @@ function generateUniqueId(){
   return `id-${timestamp}-${hexadecimalString}`;
 }
 
+// Text to speech function to read the response
+function speak(text) {
+  // Check if the browser supports the SpeechSynthesis API
+  if ('speechSynthesis' in window) {
+    // Get the first available voice
+    const voice = window.speechSynthesis.getVoices()[0];
+
+    // Create a new SpeechSynthesisUtterance object
+    const utterance = new SpeechSynthesisUtterance();
+
+    // Set the text and voice of the utterance
+    utterance.text = text;
+    utterance.voice = voice;
+
+    // Queue the utterance for synthesis
+    window.speechSynthesis.speak(utterance);
+  }else{
+    console.log('Your browser does not support the SpeechSynthesis API');
+  }
+}
+
+
 function chatStripe (isAi, value, uniqueId) {
   return (
     `
@@ -91,8 +113,6 @@ const handleSubmit = async (e) => {
     })
   });
 
-  console.log(data.get('prompt'));
-
   clearInterval(loadInterval);
   messageDiv.innerHTML = '';
 
@@ -101,7 +121,7 @@ const handleSubmit = async (e) => {
     const parsedData = data.bot.trim();
 
     typeText(messageDiv, parsedData);
-    
+    speak(parsedData);
     console.log({parsedData})
   }else {
     const err = await response.text();
@@ -114,7 +134,7 @@ const handleSubmit = async (e) => {
 
 form.addEventListener('submit', handleSubmit);
 form.addEventListener('keyup', (e) => {
-  if(e.keyCode === 13){
+  if(e.key === 'Enter'){
     handleSubmit(e);
   }
 });
